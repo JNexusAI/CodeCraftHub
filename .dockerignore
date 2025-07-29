@@ -1,0 +1,21 @@
+# Dependency directory
+node_modules
+
+# Git and VS Code
+.git
+.gitignore
+.vscode
+
+# Test and development files
+src/tests
+requests.http
+
+# Environment variables (these are injected at runtime, not built into the image)
+.env
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# NPM logs
+npm-debug.log
