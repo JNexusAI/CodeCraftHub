@@ -1,22 +1,30 @@
-# CodeCraftHub
 # CodeCraftHub Server
 
-This repository contains the server-side application for CodeCraftHub, a personalized learning platform built with Node.js, Express, and MongoDB. The development process is driven by prompts given to a generative AI to scaffold code for models, routes, tests, and deployment configurations.
+This repository contains the server-side application for CodeCraftHub, a personalized learning platform built with Node.js, Express, and MongoDB. It features a complete user authentication system (registration and login) and course management capabilities. The development process is driven by prompts given to a generative AI to scaffold code for models, routes, tests, and deployment configurations.
 
 ## Key Features
 
-- ✅ Secure user registration with password hashing (`bcrypt.js`).
-- ✅ Automated API testing suite using Jest and Supertest against an in-memory MongoDB server.
+- ✅ Secure user registration and JWT-based authentication.
+- ✅ Protected API routes using custom authentication middleware.
+- ✅ CRUD operations for Courses (Create and Read implemented).
+- ✅ Automated API testing suite using Jest and Supertest.
 - ✅ Full containerization with a multi-stage `Dockerfile` for a lightweight, production-ready image.
-- ✅ Structured and scalable project layout (`src/models`, `src/controllers`, `src/routes`).
+- ✅ Well-documented code using JSDoc-style comments.
 
 ## Technology Stack
 
 - **Backend:** Node.js, Express.js
 - **Database:** MongoDB with Mongoose
 - **Testing:** Jest, Supertest, mongodb-memory-server
+- **Authentication:** JSON Web Tokens (JWT), bcrypt.js
 - **Containerization:** Docker
-- **Utilities:** `bcrypt.js`, `dotenv`
+- **Utilities:** `dotenv`
+
+---
+
+## Project Documentation
+
+For a complete overview of the project's strategy, features, user personas, and technical specifications, please see the **[Product Requirements Document (PRD)](./docs/PRD.md)**.
 
 ---
 
@@ -51,6 +59,9 @@ Follow these instructions to get a copy of the project up and running on your lo
 
     # Your MongoDB Atlas connection string
     MONGODB_URI="mongodb+srv://..."
+
+    # Your secret key for signing JWTs
+    JWT_SECRET="your_generated_secret_key"
     ```
 
 ### Running the Application
@@ -70,26 +81,19 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 ## API Endpoints
 
-### User Routes
+### User Routes (`/api/users`)
 
-- **`POST /api/users`**: Register a new user.
-  - **Request Body:**
-    ```json
-    {
-      "username": "someuser",
-      "email": "user@example.com",
-      "password": "password123"
-    }
-    ```
-  - **Success Response (`201 Created`):**
-    ```json
-    {
-      "_id": "some_object_id",
-      "username": "someuser",
-      "email": "user@example.com",
-      "enrolledCourses": []
-    }
-    ```
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/` | Public | Register a new user. |
+| `POST` | `/login` | Public | Authenticate a user and receive a JWT. |
+
+### Course Routes (`/api/courses`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | Public | Get a list of all courses. |
+| `POST` | `/` | Private | Create a new course. Requires Bearer Token. |
 
 ---
 
@@ -114,8 +118,6 @@ You can build and run the application as a Docker container.
 
 This section documents specific issues encountered and resolved during development.
 
--   **Port Conflicts:** The application port was changed from `8000` to `5050` due to a local conflict with the `Splunkd` service. If you encounter connection errors, ensure the configured port is not in use by another application.
-
--   **Nodemon Startup Error:** An initial error `Error: Cannot find module '...index.js'` was resolved by changing the `"main"` entry in `package.json` from the default `"index.js"` to `"server.js"`. This prevents `nodemon` from trying to run two entry point files.
-
+-   **Port Conflicts (`EADDRINUSE`):** The server may fail to start if the port is in use. This was resolved by finding the conflicting process (`netstat -ano | findstr :<port>`) and stopping it (`taskkill /PID <PID> /F` on Windows) or by changing the `PORT` in the `.env` file.
+-   **Nodemon Startup Error:** An initial error `Error: Cannot find module '...index.js'` was resolved by changing the `"main"` entry in `package.json` from the default `"index.js"` to `"server.js"`.
 -   **VS Code API Testing:** For manual API testing within VS Code, the **"REST Client"** extension (by Huachao Mao) is required to enable the "Send Request" functionality in `.http` files.
